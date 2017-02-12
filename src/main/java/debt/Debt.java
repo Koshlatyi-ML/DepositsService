@@ -6,6 +6,11 @@ public class Debt {
     Currency currency;
     BigDecimal interest;
 
+    public Debt(Currency currency, BigDecimal interest) {
+        this.currency = currency;
+        this.interest = interest;
+    }
+
     public Currency getCurrency() {
         return currency;
     }
@@ -15,7 +20,7 @@ public class Debt {
     }
 
     public BigDecimal getInterest() {
-        return interest;
+        return new BigDecimal(interest.toBigInteger());
     }
 
     public void setInterest(BigDecimal interest) {

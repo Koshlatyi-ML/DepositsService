@@ -6,21 +6,30 @@ import debt.Debt;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Objects;
 
 abstract public class AbstractDeposit implements Deposit{
-
-    private String name;
-
     private Debt debt;
     private SavingService savingService;
 
     private BigDecimal balance;
+    private int monthTerm;
     private LocalDate openingDate;
 
+
+    public AbstractDeposit(Debt debt, SavingService savingService, int monthTerm) {
+        this.debt = debt;
+        this.savingService = savingService;
+        this.monthTerm = monthTerm;
+
+    }
+
     @Override
-    final public void open(BigDecimal principalSum) {
-        if (principalSum.compareTo(savingService.getMinContribution()) < 0
-                || principalSum.compareTo(savingService.getMaxContribution()) > 0) {
+    public void open(BigDecimal principalSum) {
+        BigDecimal minPrincipalSum = savingService.getMinBalance();
+        BigDecimal maxPrincipalSum = savingService.getMaxBalance();
+
+        if (!Deposits.isBetween(principalSum, minPrincipalSum, maxPrincipalSum)) {
             throw new IllegalArgumentException();
         }
 
@@ -29,16 +38,15 @@ abstract public class AbstractDeposit implements Deposit{
     }
 
     @Override
-    final public BigDecimal close() {
-        if (savingService.getMonthsTerm() < Period.between(openingDate, LocalDate.now()).getMonths()) {
+    public BigDecimal close() {
+        if (Objects.isNull(openingDate)) {
             throw new IllegalStateException();
         }
 
-        return balance;
-    }
+        BigDecimal balance = new BigDecimal(this.balance.toBigInteger());
+        resetBalance();
 
-    public String getName() {
-        return name;
+        return balance;
     }
 
     public Debt getDebt() {
@@ -53,23 +61,26 @@ abstract public class AbstractDeposit implements Deposit{
         return balance;
     }
 
-    public LocalDate getOpeningDate() {
-        return openingDate;
+    public void setBalance(BigDecimal balance) {
+        if (balance.compareTo(savingService.getMinBalance()) < 0
+                || balance.compareTo(savingService.getMaxBalance()) > 0) {
+            throw new IllegalArgumentException();
+        }
+
+        this.balance = balance;
     }
 
-//    ???
-//    BigDecimal payInterest() {
-//        return balance.multiply(debt.getInterest());
-//    }
+    private void resetBalance() {
+        this.balance = BigDecimal.ZERO;
+    }
+
+    public LocalDate getOpeningDate() {
+        return LocalDate.from(openingDate);
+    }
+
+    public int getMonthTerm() {
+        return monthTerm;
+    }
 
     abstract void processMonthlyTransaction();
-//    {
-//        if (LocalDate.now().compareTo(openingDate) < 0) {
-//            throw new IllegalStateException();
-//        }
-//
-//        if (Period.between(openingDate, LocalDate.now()).getMonths() <= savingService.getMonthsTerm()) {
-//            this.income = this.payInterest();
-//        }
-//    }
 }

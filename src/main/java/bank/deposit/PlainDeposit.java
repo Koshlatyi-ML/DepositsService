@@ -1,39 +1,43 @@
 package bank.deposit;
 
 import bank.service.SavingService;
+import debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 
-/**
- * Pay monthly interests to income;
- */
 public class PlainDeposit extends AbstractDeposit {
     private final LocalDate openingDate = this.getOpeningDate();
+    private final LocalDate closingDate = openingDate
+            .plusMonths(getMonthTerm())
+            .plusDays(1);
 
-    private BigDecimal income;
+    private BigDecimal income = BigDecimal.ZERO;
 
-    private BigDecimal payInterest() {
-        BigDecimal balance = this.getBalance();
-
-        return balance.multiply(this.getDebt().getInterest());
-    }
-
-    public BigDecimal getIncome() {
-        return income;
+    PlainDeposit(Debt debt, SavingService savingService, int monthTerm) {
+        super(debt, savingService, monthTerm);
     }
 
     @Override
     void processMonthlyTransaction() {
-        if (LocalDate.now().compareTo(openingDate) < 0) {
+        if(!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
             throw new IllegalStateException();
         }
 
-        SavingService savingService = this.getSavingService();
+        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
+    }
 
-        if (Period.between(openingDate, LocalDate.now()).getMonths() <= savingService.getMonthsTerm()) {
-            this.income = this.payInterest();
+    @Override
+    public BigDecimal close() {
+        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
+            throw new IllegalStateException();
         }
+
+        return super.close();
+    }
+
+    public BigDecimal getIncome() {
+        return income;
     }
 }

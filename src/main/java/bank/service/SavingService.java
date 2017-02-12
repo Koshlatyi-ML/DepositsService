@@ -1,38 +1,36 @@
 package bank.service;
 
-import debt.Debt;
-
 import java.math.BigDecimal;
+import java.time.Period;
 
 public class SavingService {
-    private BigDecimal minContribution;
-    private BigDecimal maxContribution;
+    private BigDecimal minBalance;
+    private BigDecimal maxBalance;
 
-    private int monthsTerm;
     private int minMonthsTerm;
 
-    public BigDecimal getMinContribution() {
-        return minContribution;
+    public SavingService(BigDecimal minBalance,
+                         BigDecimal maxBalance,
+                         int minMonthsTerm) {
+        this.minBalance = minBalance;
+        this.maxBalance = maxBalance;
+        this.minMonthsTerm = minMonthsTerm;
     }
 
-    public void setMinContribution(BigDecimal minContribution) {
-        this.minContribution = minContribution;
+    public BigDecimal getMinBalance() {
+        return minBalance;
     }
 
-    public BigDecimal getMaxContribution() {
-        return maxContribution;
+    public void setMinBalance(BigDecimal minBalance) {
+        this.minBalance = minBalance;
     }
 
-    public void setMaxContribution(BigDecimal maxContribution) {
-        this.maxContribution = maxContribution;
+    public BigDecimal getMaxBalance() {
+        return maxBalance;
     }
 
-    public int getMonthsTerm() {
-        return monthsTerm;
-    }
-
-    public void setMonthsTerm(int monthsTerm) {
-        this.monthsTerm = monthsTerm;
+    public void setMaxBalance(BigDecimal maxBalance) {
+        this.maxBalance = maxBalance;
     }
 
     public int getMinMonthsTerm() {
