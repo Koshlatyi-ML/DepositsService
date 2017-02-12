@@ -6,7 +6,7 @@ public class ReplenishService {
     private BigDecimal minReplenishment;
     private BigDecimal maxReplenishment;
 
-    int replenishableMonths;
+    private int replenishableMonths;
 
     public ReplenishService(BigDecimal minReplenishment,
                             BigDecimal maxReplenishment,

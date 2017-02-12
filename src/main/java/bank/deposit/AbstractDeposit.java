@@ -5,7 +5,6 @@ import debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Objects;
 
 abstract public class AbstractDeposit implements Deposit{
@@ -15,7 +14,6 @@ abstract public class AbstractDeposit implements Deposit{
     private BigDecimal balance;
     private int monthTerm;
     private LocalDate openingDate;
-
 
     public AbstractDeposit(Debt debt, SavingService savingService, int monthTerm) {
         this.debt = debt;
@@ -62,8 +60,10 @@ abstract public class AbstractDeposit implements Deposit{
     }
 
     public void setBalance(BigDecimal balance) {
-        if (balance.compareTo(savingService.getMinBalance()) < 0
-                || balance.compareTo(savingService.getMaxBalance()) > 0) {
+        BigDecimal minBalance = savingService.getMinBalance();
+        BigDecimal maxBalance = savingService.getMaxBalance();
+
+        if (!Deposits.isBetween(balance, minBalance, maxBalance)) {
             throw new IllegalArgumentException();
         }
 

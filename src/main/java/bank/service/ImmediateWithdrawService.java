@@ -1,7 +1,5 @@
 package bank.service;
 
-import java.time.Period;
-
 public class ImmediateWithdrawService {
     private int unwithdrawableDays;
 
