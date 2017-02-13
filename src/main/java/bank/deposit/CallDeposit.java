@@ -6,8 +6,8 @@ import debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class CallDeposit extends AbstractDeposit implements Withdrawable {
     private final LocalDate openingDate = this.getOpeningDate();
@@ -15,8 +15,7 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    ImmediateWithdrawService withdrawService;
-    private BigDecimal income = BigDecimal.ZERO;
+    private ImmediateWithdrawService withdrawService;
 
     CallDeposit(Debt debt,
                 SavingService savingService,
@@ -40,30 +39,18 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
 
     @Override
     public BigDecimal withdraw() {
-        int unwithdrawableDays = withdrawService.getUnwithdrawableDays();
-        LocalDate withdrawStartDate = openingDate.plusDays(unwithdrawableDays);
-
-        if (!Deposits.isBetween(LocalDate.now(), withdrawStartDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        return this.close();
+        return withdrawService.withdraw();
     }
 
-    @Override
-    void processMonthlyTransaction() {
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
+    public ImmediateWithdrawService getWithdrawService() {
+        return withdrawService;
+    }
+
+    public void setWithdrawService(ImmediateWithdrawService withdrawService) {
+        if (Objects.isNull(withdrawService)) {
+            throw new NullPointerException();
         }
 
-        if (getBalance().equals(BigDecimal.ZERO)) {
-            throw new IllegalStateException();
-        }
-
-        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
+        this.withdrawService = withdrawService;
     }
 }

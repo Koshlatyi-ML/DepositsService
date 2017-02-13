@@ -51,7 +51,10 @@ public class DepositFactory {
             throw new IllegalArgumentException();
         }
 
-        return new CallDeposit(debt, savingService, withdrawService, monthTerm);
+        CallDeposit deposit = new CallDeposit(debt, savingService, withdrawService, monthTerm);
+        deposit.getWithdrawService().setDeposit(deposit); //todo ask
+
+        return deposit;
     }
 
     public static ReplenishableDeposit createReplenishableDeposit(Debt debt,
@@ -76,7 +79,11 @@ public class DepositFactory {
             replenishService.setReplenishableMonths(monthTerm);
         }
 
-        return new ReplenishableDeposit(debt, savingService, replenishService, monthTerm);
+        ReplenishableDeposit deposit
+                = new ReplenishableDeposit(debt, savingService, replenishService, monthTerm);
+        deposit.getReplenishService().setDeposit(deposit); //todo ask
+
+        return deposit;
     }
 
     public static AllInclusiveDeposit createAllInclusiveDeposit(Debt debt,
@@ -108,10 +115,16 @@ public class DepositFactory {
             replenishService.setReplenishableMonths(monthTerm);
         }
 
-        return new AllInclusiveDeposit(debt,
+        AllInclusiveDeposit deposit = new AllInclusiveDeposit(
+                debt,
                 savingService,
                 replenishService,
                 withdrawService,
                 monthTerm);
+
+        deposit.getReplenishService().setDeposit(deposit);
+        deposit.getWithdrawService().setDeposit(deposit);
+
+        return deposit;
     }
 }

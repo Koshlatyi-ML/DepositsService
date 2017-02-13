@@ -1,7 +1,6 @@
 package bank.service;
 
 import java.math.BigDecimal;
-import java.time.Period;
 
 public class SavingService {
     private BigDecimal minBalance;
@@ -18,7 +17,7 @@ public class SavingService {
     }
 
     public BigDecimal getMinBalance() {
-        return minBalance;
+        return new BigDecimal(minBalance.toBigInteger());
     }
 
     public void setMinBalance(BigDecimal minBalance) {
@@ -26,7 +25,7 @@ public class SavingService {
     }
 
     public BigDecimal getMaxBalance() {
-        return maxBalance;
+        return new BigDecimal(maxBalance.toBigInteger());
     }
 
     public void setMaxBalance(BigDecimal maxBalance) {

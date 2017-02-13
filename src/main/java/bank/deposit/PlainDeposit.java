@@ -5,7 +5,6 @@ import debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 
 public class PlainDeposit extends AbstractDeposit {
     private final LocalDate openingDate = this.getOpeningDate();
@@ -13,19 +12,8 @@ public class PlainDeposit extends AbstractDeposit {
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    private BigDecimal income = BigDecimal.ZERO;
-
     PlainDeposit(Debt debt, SavingService savingService, int monthTerm) {
         super(debt, savingService, monthTerm);
-    }
-
-    @Override
-    void processMonthlyTransaction() {
-        if(!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
     }
 
     @Override
@@ -35,9 +23,5 @@ public class PlainDeposit extends AbstractDeposit {
         }
 
         return super.close();
-    }
-
-    public BigDecimal getIncome() {
-        return income;
     }
 }

@@ -8,6 +8,7 @@ import debt.Debt;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class AllInclusiveDeposit extends AbstractDeposit implements Replenishable, Withdrawable {
     private final LocalDate openingDate = this.getOpeningDate();
@@ -15,9 +16,8 @@ public class AllInclusiveDeposit extends AbstractDeposit implements Replenishabl
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    BigDecimal income;
-    ReplenishService replenishService;
-    ImmediateWithdrawService withdrawService;
+    private ReplenishService replenishService;
+    private ImmediateWithdrawService withdrawService;
 
     AllInclusiveDeposit(Debt debt,
                         SavingService savingService,
@@ -43,50 +43,33 @@ public class AllInclusiveDeposit extends AbstractDeposit implements Replenishabl
 
     @Override
     public void replenish(BigDecimal replenishment) {
-        int replenishableMonth = replenishService.getReplenishableMonths();
-        LocalDate replenishableEndDate = openingDate.plusMonths(replenishableMonth);
-
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, replenishableEndDate)) {
-            throw new IllegalStateException();
-        }
-
-        BigDecimal minReplenishment = replenishService.getMinReplenishment();
-        BigDecimal maxReplenishment = replenishService.getMinReplenishment();
-
-        if (!Deposits.isBetween(replenishment, minReplenishment, maxReplenishment)) {
-            throw new IllegalArgumentException();
-        }
-
-        BigDecimal balance = getBalance();
-        this.setBalance(balance.add(replenishment));
+        replenishService.replenish(replenishment);
     }
 
     @Override
     public BigDecimal withdraw() {
-        int unwithdrawableDays = withdrawService.getUnwithdrawableDays();
-        LocalDate withdrawStartDate = openingDate.plusDays(unwithdrawableDays);
-
-        if (!Deposits.isBetween(LocalDate.now(), withdrawStartDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        return this.close();
+        return withdrawService.withdraw();
     }
 
-    @Override
-    void processMonthlyTransaction() {
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
+    public ReplenishService getReplenishService() {
+        return replenishService;
+    }
 
-        if (getBalance().equals(BigDecimal.ZERO)) {
-            throw new IllegalStateException();
+    public void setReplenishService(ReplenishService replenishService) {
+        if (Objects.isNull(replenishService)) {
+            throw new NullPointerException();
         }
+        this.replenishService = replenishService;
+    }
 
-        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
+    public ImmediateWithdrawService getWithdrawService() {
+        return withdrawService;
+    }
+
+    public void setWithdrawService(ImmediateWithdrawService withdrawService) {
+        if (Objects.isNull(withdrawService)) {
+            throw new NullPointerException();
+        }
+        this.withdrawService = withdrawService;
     }
 }

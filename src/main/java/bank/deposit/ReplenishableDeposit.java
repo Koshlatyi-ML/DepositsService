@@ -6,6 +6,7 @@ import debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ReplenishableDeposit extends AbstractDeposit implements Replenishable {
     private final LocalDate openingDate = this.getOpeningDate();
@@ -13,8 +14,7 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    ReplenishService replenishService;
-    private BigDecimal income = BigDecimal.ZERO;
+    private ReplenishService replenishService;
 
     ReplenishableDeposit(Debt debt,
                          SavingService savingService,
@@ -26,31 +26,7 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
 
     @Override
     public void replenish(BigDecimal replenishment) {
-        int replenishableMonth = replenishService.getReplenishableMonths();
-        LocalDate replenishableEndDate = openingDate.plusMonths(replenishableMonth);
-
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, replenishableEndDate)) {
-            throw new IllegalStateException();
-        }
-
-        BigDecimal minReplenishment = replenishService.getMinReplenishment();
-        BigDecimal maxReplenishment = replenishService.getMinReplenishment();
-
-        if (!Deposits.isBetween(replenishment, minReplenishment, maxReplenishment)) {
-            throw new IllegalArgumentException();
-        }
-
-        BigDecimal balance = getBalance();
-        this.setBalance(balance.add(replenishment));
-    }
-
-    @Override
-    void processMonthlyTransaction() {
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
+        replenishService.replenish(replenishment);
     }
 
     @Override
@@ -62,4 +38,15 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
         return super.close();
     }
 
+    public ReplenishService getReplenishService() {
+        return replenishService;
+    }
+
+    public void setReplenishService(ReplenishService replenishService) {
+        if (Objects.isNull(replenishService)) {
+            throw new NullPointerException();
+        }
+
+        this.replenishService = replenishService;
+    }
 }
