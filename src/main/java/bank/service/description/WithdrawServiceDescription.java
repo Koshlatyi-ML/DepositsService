@@ -1,9 +1,9 @@
-package bank.service;
+package bank.service.description;
 
-public class ImmediateWithdrawService {
+public class WithdrawServiceDescription {
     private int unwithdrawableDays;
 
-    public ImmediateWithdrawService(int unwithdrawableDays) {
+    public WithdrawServiceDescription(int unwithdrawableDays) {
         this.unwithdrawableDays = unwithdrawableDays;
     }
 
@@ -12,6 +12,10 @@ public class ImmediateWithdrawService {
     }
 
     public void setUnwithdrawableDays(int unwithdrawableDays) {
+        if (unwithdrawableDays < 0) {
+            throw new IllegalArgumentException();
+        }
+
         this.unwithdrawableDays = unwithdrawableDays;
     }
 }

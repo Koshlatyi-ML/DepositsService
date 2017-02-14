@@ -1,11 +1,14 @@
 package bank.deposit;
 
 import bank.service.ReplenishService;
+import bank.service.Replenishable;
+import bank.service.description.ReplenishServiceDescription;
 import bank.service.SavingService;
-import debt.Debt;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ReplenishableDeposit extends AbstractDeposit implements Replenishable {
     private final LocalDate openingDate = this.getOpeningDate();
@@ -13,53 +16,62 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    ReplenishService replenishService;
-    private BigDecimal income = BigDecimal.ZERO;
+    private ReplenishService replenishService;
 
-    ReplenishableDeposit(Debt debt,
-                         SavingService savingService,
-                         ReplenishService replenishService,
-                         int monthTerm) {
+    ReplenishableDeposit(Debt debt, SavingService savingService, int monthTerm,
+                         ReplenishService replenishService) {
         super(debt, savingService, monthTerm);
         this.replenishService = replenishService;
     }
 
     @Override
     public void replenish(BigDecimal replenishment) {
-        int replenishableMonth = replenishService.getReplenishableMonths();
-        LocalDate replenishableEndDate = openingDate.plusMonths(replenishableMonth);
+        replenishService.replenish(replenishment);
+    }
 
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, replenishableEndDate)) {
+    public ReplenishServiceDescription getReplenishServiceDescription() {
+        return replenishService.getServiceDescription();
+    }
+
+    public void setReplenishServiceDescription(ReplenishServiceDescription replenishServiceDescription) {
+        if (Objects.isNull(replenishServiceDescription)) {
+            throw new NullPointerException();
+        }
+
+        this.replenishService.setServiceDescription(replenishServiceDescription);
+    }
+
+    public BigDecimal getMinReplenishment() {
+        return replenishService.getServiceDescription().getMinReplenishment();
+    }
+
+    public void setMinReplenishment(BigDecimal minReplenishment) {
+        if (minReplenishment.compareTo(getMaxBalance()) > 0) {
             throw new IllegalStateException();
         }
 
-        BigDecimal minReplenishment = replenishService.getMinReplenishment();
-        BigDecimal maxReplenishment = replenishService.getMinReplenishment();
-
-        if (!Deposits.isBetween(replenishment, minReplenishment, maxReplenishment)) {
-            throw new IllegalArgumentException();
-        }
-
-        BigDecimal balance = getBalance();
-        this.setBalance(balance.add(replenishment));
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setMinReplenishment(minReplenishment);
+        replenishService.setServiceDescription(serviceDescription);
     }
 
-    @Override
-    void processMonthlyTransaction() {
-        if (!Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        this.income = Deposits.getAccruedInterest(getBalance(), getDebt().getInterest());
+    public BigDecimal getMaxReplenishment() {
+        return replenishService.getServiceDescription().getMaxReplenishment();
     }
 
-    @Override
-    public BigDecimal close() {
-        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        return super.close();
+    public void setMaxReplenishment(BigDecimal maxReplenishment) {
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setMaxReplenishment(maxReplenishment);
+        replenishService.setServiceDescription(serviceDescription);
     }
 
+    public int getReplenishableMonths() {
+        return replenishService.getServiceDescription().getReplenishableMonths();
+    }
+
+    public void setReplenishableMonths(int replenishableMonths) {
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setReplenishableMonths(replenishableMonths);
+        replenishService.setServiceDescription(serviceDescription);
+    }
 }

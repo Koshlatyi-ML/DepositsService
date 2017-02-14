@@ -1,4 +1,4 @@
-package debt;
+package bank.debt;
 
 import java.math.BigDecimal;
 
