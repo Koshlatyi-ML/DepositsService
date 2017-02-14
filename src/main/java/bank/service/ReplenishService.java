@@ -2,7 +2,6 @@ package bank.service;
 
 import bank.deposit.Deposit;
 import bank.deposit.Deposits;
-import bank.service.Replenishable;
 import bank.service.description.ReplenishServiceDescription;
 
 import java.math.BigDecimal;
@@ -34,6 +33,14 @@ public class ReplenishService implements Replenishable {
     }
 
     public void setDeposit(Deposit deposit) {
+        if (Objects.isNull(deposit)) {
+            throw new NullPointerException();
+        }
+
+        if (deposit.isOpened()) {
+            throw new IllegalArgumentException();
+        }
+
         this.deposit = deposit;
     }
 
@@ -63,6 +70,10 @@ public class ReplenishService implements Replenishable {
 
     public void setReplenishableMonths(int replenishableMonths) {
         serviceDescription.setReplenishableMonths(replenishableMonths);
+    }
+
+    public boolean hasDeposit() {
+        return !Objects.isNull(deposit);
     }
 
     @Override

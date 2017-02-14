@@ -25,24 +25,6 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
         this.withdrawService = withdrawService;
     }
 
-    @Override
-    public void open(BigDecimal principalSum) {
-        int unwithdrawableDays = withdrawService.getServiceDescription().getUnwithdrawableDays();
-        LocalDate lastUnwithdrawableDate = LocalDate.now().plusDays(unwithdrawableDays);
-
-        if ((lastUnwithdrawableDate).compareTo(closingDate) >= 0) {
-            long boundaryWithdrawPeriod = ChronoUnit.DAYS.between(openingDate,closingDate.minusDays(1));
-            setUnwithdrawableDays((int) boundaryWithdrawPeriod);
-        }
-
-        super.open(principalSum);
-    }
-
-    @Override
-    public BigDecimal withdraw() {
-        return withdrawService.withdraw();
-    }
-
     public WithdrawServiceDescription getWithdrawServiceDescription() {
         return withdrawService.getServiceDescription();
     }
@@ -61,5 +43,27 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
 
     public void setUnwithdrawableDays(int unwithdrawableDays) {
         withdrawService.setUnwithdrawableDays(unwithdrawableDays);
+    }
+
+    public boolean isEngaged() {
+        return withdrawService.hasDeposit();
+    }
+
+    @Override
+    public void open(BigDecimal principalSum) {
+        int unwithdrawableDays = withdrawService.getServiceDescription().getUnwithdrawableDays();
+        LocalDate lastUnwithdrawableDate = LocalDate.now().plusDays(unwithdrawableDays);
+
+        if ((lastUnwithdrawableDate).compareTo(closingDate) >= 0) {
+            long boundaryWithdrawPeriod = ChronoUnit.DAYS.between(openingDate,closingDate.minusDays(1));
+            setUnwithdrawableDays((int) boundaryWithdrawPeriod);
+        }
+
+        super.open(principalSum);
+    }
+
+    @Override
+    public BigDecimal withdraw() {
+        return withdrawService.withdraw();
     }
 }

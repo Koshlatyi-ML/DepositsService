@@ -24,11 +24,6 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
         this.replenishService = replenishService;
     }
 
-    @Override
-    public void replenish(BigDecimal replenishment) {
-        replenishService.replenish(replenishment);
-    }
-
     public ReplenishServiceDescription getReplenishServiceDescription() {
         return replenishService.getServiceDescription();
     }
@@ -74,4 +69,14 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
         serviceDescription.setReplenishableMonths(replenishableMonths);
         replenishService.setServiceDescription(serviceDescription);
     }
+
+    public boolean isEngaged() {
+        return replenishService.hasDeposit();
+    }
+
+    @Override
+    public void replenish(BigDecimal replenishment) {
+        replenishService.replenish(replenishment);
+    }
+
 }

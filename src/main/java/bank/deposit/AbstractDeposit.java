@@ -15,6 +15,9 @@ abstract public class AbstractDeposit implements Deposit{
     private int monthTerm;
     private LocalDate openingDate;
 
+    private boolean isOpened = false;
+    private boolean isClosed = false;
+
     private final LocalDate closingDate = openingDate
             .plusMonths(monthTerm)
             .plusDays(1);
@@ -26,35 +29,6 @@ abstract public class AbstractDeposit implements Deposit{
         this.debt = debt;
         this.savingService = savingService;
         this.monthTerm = monthTerm;
-    }
-
-    @Override
-    public void open(BigDecimal principalSum) {
-        BigDecimal minPrincipalSum = savingService.getMinBalance();
-        BigDecimal maxPrincipalSum = savingService.getMaxBalance();
-
-        if (!Deposits.isBetween(principalSum, minPrincipalSum, maxPrincipalSum)) {
-            throw new IllegalArgumentException();
-        }
-
-        this.openingDate = LocalDate.now();
-        this.balance = principalSum;
-    }
-
-    @Override
-    public BigDecimal close() {
-        if (Objects.isNull(openingDate)) {
-            throw new IllegalStateException();
-        }
-
-        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        BigDecimal balance = new BigDecimal(this.balance.toBigInteger());
-        resetBalance();
-
-        return balance;
     }
 
     @Override
@@ -175,6 +149,45 @@ abstract public class AbstractDeposit implements Deposit{
         }
 
         savingService.setMinMonthsTerm(minMonthsTerm);
+    }
+
+    @Override
+    public void open(BigDecimal principalSum) {
+        BigDecimal minPrincipalSum = savingService.getMinBalance();
+        BigDecimal maxPrincipalSum = savingService.getMaxBalance();
+
+        if (!Deposits.isBetween(principalSum, minPrincipalSum, maxPrincipalSum)) {
+            throw new IllegalArgumentException();
+        }
+
+        this.openingDate = LocalDate.now();
+        this.balance = principalSum;
+    }
+
+    @Override
+    public boolean isOpened() {
+        return isOpened;
+    }
+
+    @Override
+    public BigDecimal close() {
+        if (Objects.isNull(openingDate)) {
+            throw new IllegalStateException();
+        }
+
+        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
+            throw new IllegalStateException();
+        }
+
+        BigDecimal balance = new BigDecimal(this.balance.toBigInteger());
+        resetBalance();
+
+        return balance;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
     }
 
     void processMonthlyTransaction() {

@@ -25,6 +25,10 @@ public class WithdrawService implements Withdrawable {
             throw new NullPointerException();
         }
 
+        if (deposit.isOpened()) {
+            throw new IllegalArgumentException();
+        }
+
         this.deposit = deposit;
     }
 
