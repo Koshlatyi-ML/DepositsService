@@ -1,4 +1,4 @@
-package debt;
+package bank.debt;
 
 public enum CurrencyCode {
     USD,

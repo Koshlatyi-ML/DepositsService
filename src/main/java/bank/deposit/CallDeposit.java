@@ -1,8 +1,10 @@
 package bank.deposit;
 
-import bank.service.ImmediateWithdrawService;
 import bank.service.SavingService;
-import debt.Debt;
+import bank.service.WithdrawService;
+import bank.service.Withdrawable;
+import bank.service.description.WithdrawServiceDescription;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,25 +17,24 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    private ImmediateWithdrawService withdrawService;
+    private WithdrawService withdrawService;
 
-    CallDeposit(Debt debt,
-                SavingService savingService,
-                ImmediateWithdrawService withdrawService,
-                int monthTerm) {
+    CallDeposit(Debt debt, SavingService savingService, int monthTerm,
+                WithdrawService withdrawService) {
         super(debt, savingService, monthTerm);
         this.withdrawService = withdrawService;
     }
 
     @Override
     public void open(BigDecimal principalSum) {
-        int unwithdrawableDays = withdrawService.getUnwithdrawableDays();
+        int unwithdrawableDays = withdrawService.getServiceDescription().getUnwithdrawableDays();
         LocalDate lastUnwithdrawableDate = LocalDate.now().plusDays(unwithdrawableDays);
 
-        if ((lastUnwithdrawableDate).compareTo(openingDate.plusMonths(getMonthTerm())) >= 0) {
+        if ((lastUnwithdrawableDate).compareTo(closingDate) >= 0) {
             long boundaryWithdrawPeriod = ChronoUnit.DAYS.between(openingDate,closingDate.minusDays(1));
-            this.withdrawService.setUnwithdrawableDays((int) boundaryWithdrawPeriod);
+            setUnwithdrawableDays((int) boundaryWithdrawPeriod);
         }
+
         super.open(principalSum);
     }
 
@@ -42,15 +43,23 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
         return withdrawService.withdraw();
     }
 
-    public ImmediateWithdrawService getWithdrawService() {
-        return withdrawService;
+    public WithdrawServiceDescription getWithdrawServiceDescription() {
+        return withdrawService.getServiceDescription();
     }
 
-    public void setWithdrawService(ImmediateWithdrawService withdrawService) {
-        if (Objects.isNull(withdrawService)) {
+    public void setWithdrawServiceDescription(WithdrawServiceDescription withdrawServiceDescription) {
+        if (Objects.isNull(withdrawServiceDescription)) {
             throw new NullPointerException();
         }
 
-        this.withdrawService = withdrawService;
+        this.withdrawService.setServiceDescription(withdrawServiceDescription);
+    }
+
+    public int getUnwithdrawableDays() {
+        return withdrawService.getUnwithdrawableDays();
+    }
+
+    public void setUnwithdrawableDays(int unwithdrawableDays) {
+        withdrawService.setUnwithdrawableDays(unwithdrawableDays);
     }
 }

@@ -1,9 +1,9 @@
 package bank.deposit;
 
-import bank.service.ImmediateWithdrawService;
-import bank.service.ReplenishService;
-import bank.service.SavingService;
-import debt.Debt;
+import bank.service.*;
+import bank.service.description.WithdrawServiceDescription;
+import bank.service.description.ReplenishServiceDescription;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,13 +17,10 @@ public class AllInclusiveDeposit extends AbstractDeposit implements Replenishabl
             .plusDays(1);
 
     private ReplenishService replenishService;
-    private ImmediateWithdrawService withdrawService;
+    private WithdrawService withdrawService;
 
-    AllInclusiveDeposit(Debt debt,
-                        SavingService savingService,
-                        ReplenishService replenishService,
-                        ImmediateWithdrawService withdrawService,
-                        int monthTerm) {
+    AllInclusiveDeposit(Debt debt, SavingService savingService, int monthTerm,
+                        ReplenishService replenishService, WithdrawService withdrawService) {
         super(debt, savingService, monthTerm);
         this.replenishService = replenishService;
         this.withdrawService = withdrawService;
@@ -31,13 +28,14 @@ public class AllInclusiveDeposit extends AbstractDeposit implements Replenishabl
 
     @Override
     public void open(BigDecimal principalSum) {
-        int unwithdrawableDays = withdrawService.getUnwithdrawableDays();
+        int unwithdrawableDays = withdrawService.getServiceDescription().getUnwithdrawableDays();
         LocalDate lastUnwithdrawableDate = LocalDate.now().plusDays(unwithdrawableDays);
 
-        if ((lastUnwithdrawableDate).compareTo(openingDate.plusMonths(getMonthTerm())) >= 0) {
+        if ((lastUnwithdrawableDate).compareTo(closingDate) >= 0) {
             long boundaryWithdrawPeriod = ChronoUnit.DAYS.between(openingDate,closingDate.minusDays(1));
-            this.withdrawService.setUnwithdrawableDays((int) boundaryWithdrawPeriod);
+            setUnwithdrawableDays((int) boundaryWithdrawPeriod);
         }
+
         super.open(principalSum);
     }
 
@@ -51,25 +49,59 @@ public class AllInclusiveDeposit extends AbstractDeposit implements Replenishabl
         return withdrawService.withdraw();
     }
 
-    public ReplenishService getReplenishService() {
-        return replenishService;
+    public ReplenishServiceDescription getReplenishServiceDescription() {
+        return replenishService.getServiceDescription();
     }
 
-    public void setReplenishService(ReplenishService replenishService) {
-        if (Objects.isNull(replenishService)) {
+    public void setReplenishServiceDescription(ReplenishServiceDescription replenishServiceDescription) {
+        if (Objects.isNull(replenishServiceDescription)) {
             throw new NullPointerException();
         }
-        this.replenishService = replenishService;
+
+        this.replenishService.setServiceDescription(replenishServiceDescription);
     }
 
-    public ImmediateWithdrawService getWithdrawService() {
-        return withdrawService;
+    public WithdrawServiceDescription getWithdrawServiceDescription() {
+        return withdrawService.getServiceDescription();
     }
 
-    public void setWithdrawService(ImmediateWithdrawService withdrawService) {
-        if (Objects.isNull(withdrawService)) {
+    public void setWithdrawServiceDescription(WithdrawServiceDescription withdrawServiceDescription) {
+        if (Objects.isNull(withdrawServiceDescription)) {
             throw new NullPointerException();
         }
-        this.withdrawService = withdrawService;
+
+        this.withdrawService.setServiceDescription(withdrawServiceDescription);
+    }
+
+    public BigDecimal getMinReplenishment() {
+        return replenishService.getMinReplenishment();
+    }
+
+    public void setMinReplenishment(BigDecimal minReplenishment) {
+        replenishService.setMinReplenishment(minReplenishment);
+    }
+
+    public BigDecimal getMaxReplenishment() {
+        return replenishService.getMaxReplenishment();
+    }
+
+    public void setMaxReplenishment(BigDecimal maxReplenishment) {
+        replenishService.setMaxReplenishment(maxReplenishment);
+    }
+
+    public int getReplenishableMonths() {
+        return replenishService.getReplenishableMonths();
+    }
+
+    public void setReplenishableMonths(int replenishableMonths) {
+        replenishService.setReplenishableMonths(replenishableMonths);
+    }
+
+    public int getUnwithdrawableDays() {
+        return withdrawService.getUnwithdrawableDays();
+    }
+
+    public void setUnwithdrawableDays(int unwithdrawableDays) {
+        withdrawService.setUnwithdrawableDays(unwithdrawableDays);
     }
 }

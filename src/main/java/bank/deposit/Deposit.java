@@ -1,11 +1,11 @@
 package bank.deposit;
 
-import debt.Debt;
+import bank.service.SavingService;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public interface Deposit {
+public interface Deposit extends Account, SavingService{
     void open(BigDecimal principalSum);
     BigDecimal close();
 
@@ -14,9 +14,4 @@ public interface Deposit {
 
     int getMonthTerm();
     void setMonthTerm(int monthTerm);
-
-    LocalDate getOpeningDate();
-
-    BigDecimal getBalance();
-    void setBalance(BigDecimal balance);
 }

@@ -1,17 +1,20 @@
-package bank.service;
+package bank.service.description;
+
+import bank.service.PlainSavingService;
+import bank.service.description.ReplenishServiceDescription;
+import bank.service.description.WithdrawServiceDescription;
 
 import java.math.BigDecimal;
-import java.time.Period;
 import java.util.Objects;
 
-public class ServiceFactory {
-    private ServiceFactory() {
+public class ServiceDescriptionFactory {
+    private ServiceDescriptionFactory() {
         throw new IllegalAccessError();
     }
 
-    public static SavingService createSavingService(BigDecimal minBalance,
-                                                    BigDecimal maxBalance,
-                                                    int minMonthTerm) {
+    public static PlainSavingService createSavingService(BigDecimal minBalance,
+                                                         BigDecimal maxBalance,
+                                                         int minMonthTerm) {
         if (Objects.isNull(minBalance) || Objects.isNull(maxBalance)) {
             throw new NullPointerException();
         }
@@ -28,12 +31,12 @@ public class ServiceFactory {
             throw new IllegalArgumentException();
         }
 
-        return new SavingService(minBalance, maxBalance, minMonthTerm);
+        return new PlainSavingService(minBalance, maxBalance, minMonthTerm);
     }
 
-    public static ReplenishService createReplenishService(BigDecimal minReplenishment,
-                                                    BigDecimal maxReplenishment,
-                                                    int replenishableMonths) {
+    public static ReplenishServiceDescription createReplenishService(BigDecimal minReplenishment,
+                                                                     BigDecimal maxReplenishment,
+                                                                     int replenishableMonths) {
         if (Objects.isNull(minReplenishment) || Objects.isNull(maxReplenishment)) {
             throw new NullPointerException();
         }
@@ -50,14 +53,14 @@ public class ServiceFactory {
             throw new IllegalArgumentException();
         }
 
-        return new ReplenishService(minReplenishment, maxReplenishment, replenishableMonths);
+        return new ReplenishServiceDescription(minReplenishment, maxReplenishment, replenishableMonths);
     }
 
-    public static ImmediateWithdrawService createImmediateWithdrawService(int unwithdrawableDays) {
+    public static WithdrawServiceDescription createImmediateWithdrawService(int unwithdrawableDays) {
         if (unwithdrawableDays < 1) {
             throw new IllegalArgumentException();
         }
 
-        return new ImmediateWithdrawService(unwithdrawableDays);
+        return new WithdrawServiceDescription(unwithdrawableDays);
     }
 }

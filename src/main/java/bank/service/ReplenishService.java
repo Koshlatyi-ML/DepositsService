@@ -1,53 +1,32 @@
 package bank.service;
 
-import bank.deposit.AbstractDeposit;
 import bank.deposit.Deposit;
 import bank.deposit.Deposits;
-import bank.deposit.Replenishable;
+import bank.service.Replenishable;
+import bank.service.description.ReplenishServiceDescription;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ReplenishService implements Replenishable {
+    private ReplenishServiceDescription serviceDescription;
     private Deposit deposit;
 
-    private BigDecimal minReplenishment;
-    private BigDecimal maxReplenishment;
-
-    private int replenishableMonths;
-
-    public ReplenishService(BigDecimal minReplenishment,
-                            BigDecimal maxReplenishment,
-                            int replenishableMonths) {
-        this.minReplenishment = minReplenishment;
-        this.maxReplenishment = maxReplenishment;
-        this.replenishableMonths = replenishableMonths;
+    public ReplenishService(ReplenishServiceDescription serviceDescription) {
+        this.serviceDescription = serviceDescription;
     }
 
-    public ReplenishService(Deposit deposit,
-                            BigDecimal minReplenishment,
-                            BigDecimal maxReplenishment,
-                            int replenishableMonths) {
-        this.deposit = deposit;
-        this.minReplenishment = minReplenishment;
-        this.maxReplenishment = maxReplenishment;
-        this.replenishableMonths = replenishableMonths;
+    public ReplenishServiceDescription getServiceDescription() {
+        return serviceDescription;
     }
 
-    public BigDecimal getMinReplenishment() {
-        return minReplenishment;
-    }
+    public void setServiceDescription(ReplenishServiceDescription serviceDescription) {
+        if (Objects.isNull(serviceDescription)) {
+            throw new NullPointerException();
+        }
 
-    public BigDecimal getMaxReplenishment() {
-        return maxReplenishment;
-    }
-
-    public int getReplenishableMonths() {
-        return replenishableMonths;
-    }
-
-    public void setReplenishableMonths(int replenishableMonths) {
-        this.replenishableMonths = replenishableMonths;
+        this.serviceDescription = serviceDescription;
     }
 
     public Deposit getDeposit() {
@@ -58,14 +37,47 @@ public class ReplenishService implements Replenishable {
         this.deposit = deposit;
     }
 
+    public BigDecimal getMinReplenishment() {
+        return serviceDescription.getMinReplenishment();
+    }
+
+    public void setMinReplenishment(BigDecimal minReplenishment) {
+        if (minReplenishment.compareTo(deposit.getMaxBalance()) > 0) {
+            throw new IllegalStateException();
+        }
+
+        serviceDescription.setMinReplenishment(minReplenishment);
+    }
+
+    public BigDecimal getMaxReplenishment() {
+        return serviceDescription.getMaxReplenishment();
+    }
+
+    public void setMaxReplenishment(BigDecimal maxReplenishment) {
+        serviceDescription.setMaxReplenishment(maxReplenishment);
+    }
+
+    public int getReplenishableMonths() {
+        return serviceDescription.getReplenishableMonths();
+    }
+
+    public void setReplenishableMonths(int replenishableMonths) {
+        serviceDescription.setReplenishableMonths(replenishableMonths);
+    }
+
     @Override
     public void replenish(BigDecimal replenishment) {
         LocalDate openingDate = deposit.getOpeningDate();
+        int replenishableMonths = serviceDescription.getReplenishableMonths();
+
         LocalDate replenishExpirationTime = openingDate.plusMonths(replenishableMonths);
 
         if (!Deposits.isBetween(LocalDate.now(), openingDate, replenishExpirationTime)) {
             throw new IllegalStateException();
         }
+
+        BigDecimal minReplenishment = serviceDescription.getMinReplenishment();
+        BigDecimal maxReplenishment = serviceDescription.getMaxReplenishment();
 
         if (!Deposits.isBetween(replenishment, minReplenishment, maxReplenishment)) {
             throw new IllegalArgumentException();

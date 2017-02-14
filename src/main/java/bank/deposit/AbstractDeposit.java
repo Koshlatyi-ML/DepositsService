@@ -1,7 +1,7 @@
 package bank.deposit;
 
 import bank.service.SavingService;
-import debt.Debt;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +44,10 @@ abstract public class AbstractDeposit implements Deposit{
     @Override
     public BigDecimal close() {
         if (Objects.isNull(openingDate)) {
+            throw new IllegalStateException();
+        }
+
+        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
             throw new IllegalStateException();
         }
 
@@ -135,6 +139,42 @@ abstract public class AbstractDeposit implements Deposit{
         }
 
         this.income = income;
+    }
+
+    public BigDecimal getMinBalance() {
+        return savingService.getMinBalance();
+    }
+
+    public void setMinBalance(BigDecimal minBalance) {
+        if (minBalance.compareTo(balance) > 0) {
+            throw new IllegalStateException();
+        }
+
+        savingService.setMinBalance(minBalance);
+    }
+
+    public BigDecimal getMaxBalance() {
+        return savingService.getMaxBalance();
+    }
+
+    public void setMaxBalance(BigDecimal maxBalance) {
+        if (maxBalance.compareTo(balance) < 0) {
+            throw new IllegalStateException();
+        }
+
+        savingService.setMaxBalance(maxBalance);
+    }
+
+    public int getMinMonthsTerm() {
+        return savingService.getMinMonthsTerm();
+    }
+
+    public void setMinMonthsTerm(int minMonthsTerm) {
+        if (minMonthsTerm < monthTerm) {
+            throw new IllegalStateException();
+        }
+
+        savingService.setMinMonthsTerm(minMonthsTerm);
     }
 
     void processMonthlyTransaction() {

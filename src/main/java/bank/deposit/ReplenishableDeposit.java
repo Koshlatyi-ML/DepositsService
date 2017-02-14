@@ -1,8 +1,10 @@
 package bank.deposit;
 
 import bank.service.ReplenishService;
+import bank.service.Replenishable;
+import bank.service.description.ReplenishServiceDescription;
 import bank.service.SavingService;
-import debt.Debt;
+import bank.debt.Debt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,10 +18,8 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
 
     private ReplenishService replenishService;
 
-    ReplenishableDeposit(Debt debt,
-                         SavingService savingService,
-                         ReplenishService replenishService,
-                         int monthTerm) {
+    ReplenishableDeposit(Debt debt, SavingService savingService, int monthTerm,
+                         ReplenishService replenishService) {
         super(debt, savingService, monthTerm);
         this.replenishService = replenishService;
     }
@@ -29,24 +29,49 @@ public class ReplenishableDeposit extends AbstractDeposit implements Replenishab
         replenishService.replenish(replenishment);
     }
 
-    @Override
-    public BigDecimal close() {
-        if (Deposits.isBetween(LocalDate.now(), openingDate, closingDate)) {
-            throw new IllegalStateException();
-        }
-
-        return super.close();
+    public ReplenishServiceDescription getReplenishServiceDescription() {
+        return replenishService.getServiceDescription();
     }
 
-    public ReplenishService getReplenishService() {
-        return replenishService;
-    }
-
-    public void setReplenishService(ReplenishService replenishService) {
-        if (Objects.isNull(replenishService)) {
+    public void setReplenishServiceDescription(ReplenishServiceDescription replenishServiceDescription) {
+        if (Objects.isNull(replenishServiceDescription)) {
             throw new NullPointerException();
         }
 
-        this.replenishService = replenishService;
+        this.replenishService.setServiceDescription(replenishServiceDescription);
+    }
+
+    public BigDecimal getMinReplenishment() {
+        return replenishService.getServiceDescription().getMinReplenishment();
+    }
+
+    public void setMinReplenishment(BigDecimal minReplenishment) {
+        if (minReplenishment.compareTo(getMaxBalance()) > 0) {
+            throw new IllegalStateException();
+        }
+
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setMinReplenishment(minReplenishment);
+        replenishService.setServiceDescription(serviceDescription);
+    }
+
+    public BigDecimal getMaxReplenishment() {
+        return replenishService.getServiceDescription().getMaxReplenishment();
+    }
+
+    public void setMaxReplenishment(BigDecimal maxReplenishment) {
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setMaxReplenishment(maxReplenishment);
+        replenishService.setServiceDescription(serviceDescription);
+    }
+
+    public int getReplenishableMonths() {
+        return replenishService.getServiceDescription().getReplenishableMonths();
+    }
+
+    public void setReplenishableMonths(int replenishableMonths) {
+        ReplenishServiceDescription serviceDescription = replenishService.getServiceDescription();
+        serviceDescription.setReplenishableMonths(replenishableMonths);
+        replenishService.setServiceDescription(serviceDescription);
     }
 }
