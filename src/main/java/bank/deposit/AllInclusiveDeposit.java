@@ -10,17 +10,17 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public class AllInclusiveDeposit extends AbstractDeposit implements Replenishable, Withdrawable {
+public class AllInclusiveDeposit extends AbstractDeposit implements ReplenishService, WithdrawService {
     private final LocalDate openingDate = this.getOpeningDate();
     private final LocalDate closingDate = openingDate
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    private ReplenishService replenishService;
-    private WithdrawService withdrawService;
+    private PlainReplenishService replenishService;
+    private PlainWithdrawService withdrawService;
 
     AllInclusiveDeposit(Debt debt, SavingService savingService, int monthTerm,
-                        ReplenishService replenishService, WithdrawService withdrawService) {
+                        PlainReplenishService replenishService, PlainWithdrawService withdrawService) {
         super(debt, savingService, monthTerm);
         this.replenishService = replenishService;
         this.withdrawService = withdrawService;

@@ -2,7 +2,7 @@ package bank.service;
 
 import java.math.BigDecimal;
 
-public interface SavingService {
+public interface SavingService extends Service {
     BigDecimal getMinBalance();
     void setMinBalance(BigDecimal minBalance);
 

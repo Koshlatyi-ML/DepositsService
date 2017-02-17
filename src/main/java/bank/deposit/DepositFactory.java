@@ -1,8 +1,8 @@
 package bank.deposit;
 
-import bank.service.ReplenishService;
+import bank.service.PlainReplenishService;
 import bank.service.SavingService;
-import bank.service.WithdrawService;
+import bank.service.PlainWithdrawService;
 import bank.service.description.WithdrawServiceDescription;
 import bank.service.description.ReplenishServiceDescription;
 import bank.debt.Debt;
@@ -48,15 +48,15 @@ public class DepositFactory {
             throw new IllegalArgumentException();
         }
 
-        WithdrawService withdrawService = new WithdrawService(withdrawServiceDescription);
+        PlainWithdrawService withdrawService = new PlainWithdrawService(withdrawServiceDescription);
         CallDeposit deposit = new CallDeposit(debt, savingService, monthTerm, withdrawService);
         withdrawService.setDeposit(deposit);
 
         return deposit;
     }
 
-    public static ReplenishableDeposit createReplenishableDeposit(Debt debt, SavingService savingService,
-            int monthTerm, ReplenishServiceDescription replenishServiceDescription) {
+    public static ReplenishServiceDeposit createReplenishableDeposit(Debt debt, SavingService savingService,
+                                                                     int monthTerm, ReplenishServiceDescription replenishServiceDescription) {
         if (Objects.isNull(debt) || Objects.isNull(savingService)
                 || Objects.isNull(replenishServiceDescription)) {
             throw new NullPointerException();
@@ -74,9 +74,9 @@ public class DepositFactory {
             replenishServiceDescription.setReplenishableMonths(monthTerm);
         }
 
-        ReplenishService replenishService = new ReplenishService(replenishServiceDescription);
-        ReplenishableDeposit deposit
-                = new ReplenishableDeposit(debt, savingService, monthTerm, replenishService);
+        PlainReplenishService replenishService = new PlainReplenishService(replenishServiceDescription);
+        ReplenishServiceDeposit deposit
+                = new ReplenishServiceDeposit(debt, savingService, monthTerm, replenishService);
         replenishService.setDeposit(deposit);
 
         return deposit;
@@ -108,8 +108,8 @@ public class DepositFactory {
             replenishServiceDescription.setReplenishableMonths(monthTerm);
         }
 
-        WithdrawService withdrawService = new WithdrawService(withdrawServiceDescription);
-        ReplenishService replenishService = new ReplenishService(replenishServiceDescription);
+        PlainWithdrawService withdrawService = new PlainWithdrawService(withdrawServiceDescription);
+        PlainReplenishService replenishService = new PlainReplenishService(replenishServiceDescription);
 
         AllInclusiveDeposit deposit = new AllInclusiveDeposit(debt, savingService,
                 monthTerm, replenishService, withdrawService);

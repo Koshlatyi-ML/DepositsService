@@ -3,7 +3,7 @@ package bank.service;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class PlainSavingService {
+public class PlainSavingService implements SavingService {
     private BigDecimal minBalance;
     private BigDecimal maxBalance;
 

@@ -20,12 +20,11 @@ public class Currency {
     }
 
     private static Map<CurrencyCode, BigDecimal> setExchangeRates() {
-     //todo parse file
         return new HashMap<CurrencyCode, BigDecimal>(){{
-                exchangeRates.put(CurrencyCode.UAH, BigDecimal.ONE);
-                exchangeRates.put(CurrencyCode.USD, new BigDecimal("27.061"));
-                exchangeRates.put(CurrencyCode.EUR, new BigDecimal("28.681"));
-                exchangeRates.put(CurrencyCode.RUB, new BigDecimal("0.432"));
+                put(CurrencyCode.UAH, BigDecimal .ONE);
+                put(CurrencyCode.USD, new BigDecimal("27.061"));
+                put(CurrencyCode.EUR, new BigDecimal("28.681"));
+                put(CurrencyCode.RUB, new BigDecimal("0.432"));
             }};
     }
 

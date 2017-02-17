@@ -1,8 +1,8 @@
 package bank.deposit;
 
 import bank.service.SavingService;
+import bank.service.PlainWithdrawService;
 import bank.service.WithdrawService;
-import bank.service.Withdrawable;
 import bank.service.description.WithdrawServiceDescription;
 import bank.debt.Debt;
 
@@ -11,16 +11,16 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public class CallDeposit extends AbstractDeposit implements Withdrawable {
+public class CallDeposit extends AbstractDeposit implements WithdrawService {
     private final LocalDate openingDate = this.getOpeningDate();
     private final LocalDate closingDate = openingDate
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    private WithdrawService withdrawService;
+    private PlainWithdrawService withdrawService;
 
     CallDeposit(Debt debt, SavingService savingService, int monthTerm,
-                WithdrawService withdrawService) {
+                PlainWithdrawService withdrawService) {
         super(debt, savingService, monthTerm);
         this.withdrawService = withdrawService;
     }
@@ -43,10 +43,6 @@ public class CallDeposit extends AbstractDeposit implements Withdrawable {
 
     public void setUnwithdrawableDays(int unwithdrawableDays) {
         withdrawService.setUnwithdrawableDays(unwithdrawableDays);
-    }
-
-    public boolean isEngaged() {
-        return withdrawService.hasDeposit();
     }
 
     @Override

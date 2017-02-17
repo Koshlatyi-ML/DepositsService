@@ -20,7 +20,7 @@ public class Debt {
     }
 
     public BigDecimal getInterest() {
-        return new BigDecimal(interest.toBigInteger());
+        return new BigDecimal(interest.doubleValue());
     }
 
     public void setInterest(BigDecimal interest) {

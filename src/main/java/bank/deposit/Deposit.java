@@ -1,5 +1,6 @@
 package bank.deposit;
 
+import bank.debt.Currency;
 import bank.service.SavingService;
 import bank.debt.Debt;
 
@@ -14,6 +15,12 @@ public interface Deposit extends Account, SavingService{
 
     Debt getDebt();
     void setDebt(Debt debt);
+
+    BigDecimal getInterest();
+    void setInterest(BigDecimal interest);
+
+    Currency getCurrency();
+    void setCurrency(Currency currency);
 
     int getMonthTerm();
     void setMonthTerm(int monthTerm);

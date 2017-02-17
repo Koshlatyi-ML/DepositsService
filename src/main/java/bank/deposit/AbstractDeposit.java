@@ -1,5 +1,6 @@
 package bank.deposit;
 
+import bank.debt.Currency;
 import bank.service.SavingService;
 import bank.debt.Debt;
 
@@ -13,7 +14,7 @@ abstract public class AbstractDeposit implements Deposit{
 
     private BigDecimal balance;
     private int monthTerm;
-    private LocalDate openingDate;
+    private LocalDate openingDate = LocalDate.now();
 
     private boolean isOpened = false;
     private boolean isClosed = false;
@@ -42,6 +43,26 @@ abstract public class AbstractDeposit implements Deposit{
             throw new NullPointerException();
         }
         this.debt = debt;
+    }
+
+    @Override
+    public BigDecimal getInterest() {
+        return debt.getInterest();
+    }
+
+    @Override
+    public void setInterest(BigDecimal interest) {
+        debt.setInterest(interest);
+    }
+
+    @Override
+    public Currency getCurrency() {
+        return debt.getCurrency();
+    }
+
+    @Override
+    public void setCurrency(Currency currency) {
+        debt.setCurrency(currency);
     }
 
     public SavingService getSavingService() {

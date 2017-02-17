@@ -1,7 +1,7 @@
 package bank.deposit;
 
+import bank.service.PlainReplenishService;
 import bank.service.ReplenishService;
-import bank.service.Replenishable;
 import bank.service.description.ReplenishServiceDescription;
 import bank.service.SavingService;
 import bank.debt.Debt;
@@ -10,16 +10,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class ReplenishableDeposit extends AbstractDeposit implements Replenishable {
+public class ReplenishServiceDeposit extends AbstractDeposit implements ReplenishService {
     private final LocalDate openingDate = this.getOpeningDate();
     private final LocalDate closingDate = openingDate
             .plusMonths(getMonthTerm())
             .plusDays(1);
 
-    private ReplenishService replenishService;
+    private PlainReplenishService replenishService;
 
-    ReplenishableDeposit(Debt debt, SavingService savingService, int monthTerm,
-                         ReplenishService replenishService) {
+    ReplenishServiceDeposit(Debt debt, SavingService savingService, int monthTerm,
+                            PlainReplenishService replenishService) {
         super(debt, savingService, monthTerm);
         this.replenishService = replenishService;
     }
